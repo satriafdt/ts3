@@ -68,12 +68,12 @@ var myBarChart = new Chart(ctx, {
       yAxes: [{
         ticks: {
           min: 0,
-          max: 15000,
+          max: 2000,
           maxTicksLimit: 5,
           padding: 10,
           // Include a dollar sign in the ticks
           callback: function(value, index, values) {
-            return 'Rp' + number_format(value);
+            return '' + number_format(value);
           }
         },
         gridLines: {
@@ -103,7 +103,7 @@ var myBarChart = new Chart(ctx, {
       callbacks: {
         label: function(tooltipItem, chart) {
           var datasetLabel = chart.datasets[tooltipItem.datasetIndex].label || '';
-          return datasetLabel + ': Rp' + number_format(tooltipItem.yLabel);
+          return datasetLabel + ': ' + number_format(tooltipItem.yLabel);
         }
       }
     },
