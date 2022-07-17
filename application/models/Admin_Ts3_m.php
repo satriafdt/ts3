@@ -27,4 +27,13 @@ class Admin_Ts3_m extends CI_Model
 
         return $this->db->query($query);
     }
+
+    function get_all_SPK()
+    {
+        $this->db->select('*');
+        $this->db->from('spk');
+        $this->db->order_by('uniqueid', 'DESC');
+        $query = $this->db->get();
+        return $query->result_array();
+    }
 }

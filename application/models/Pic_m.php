@@ -33,9 +33,9 @@ class Pic_m extends CI_Model
     /* START Assets Service */
     function selectAllAssetsServiceByClient($clientID)
     {
-        $this->db->select('assets_service.*, ms_branch.branch_name');
+        $this->db->select('assets_service.*, ms_branch_client.branch_name');
         $this->db->from('assets_service');
-        $this->db->join('ms_branch', 'ms_branch.id = assets_service.branch_id', 'left');
+        $this->db->join('ms_branch_client', 'ms_branch_client.id = assets_service.branch_id', 'left');
         $this->db->where('assets_service.client_id', $clientID);
         $this->db->order_by('date_post', 'DESC');
         $query = $this->db->get();
@@ -133,7 +133,7 @@ class Pic_m extends CI_Model
 
     function selectAllBranch()
     {
-        $query = "SELECT * FROM ms_branch";
+        $query = "SELECT * FROM ms_branch_client";
         return $this->db->query($query)->result_array();
     }
 }

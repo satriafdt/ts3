@@ -34,7 +34,7 @@ class User_Manage extends CI_Controller
 
         $data['user'] = $this->db->get_where('users', ['username' => $this->session->userdata('username')])->row_array();
         $data['role'] = $this->Users_m->get_roles();
-        $data['branch'] = $this->db->get('ms_branch')->result_array();
+        $data['branch'] = $this->db->get('ms_branch_client')->result_array();
         $data['area'] = $this->db->get('ms_area')->result_array();
         $data['regional'] = $this->db->get('ms_regional')->result_array();
         $data['client'] = $this->db->get('ms_client')->result_array();
@@ -139,7 +139,7 @@ class User_Manage extends CI_Controller
 
         $data['userdata'] = $this->Users_m->get_data_user($id);
         $data['role'] = $this->Users_m->get_roles();
-        $data['branch'] = $this->db->get('ms_branch')->result_array();
+        $data['branch'] = $this->db->get('ms_branch_client')->result_array();
         $data['area'] = $this->db->get('ms_area')->result_array();
         $data['regional'] = $this->db->get('ms_regional')->result_array();
         $data['client'] = $this->db->get('ms_client')->result_array();

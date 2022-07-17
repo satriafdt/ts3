@@ -505,4 +505,103 @@ class Master_Config extends CI_Controller
         ');
         redirect('Master_Config/Type_Service');
     }
+
+    public function Bengkel_list()
+    {
+        $data['title']    = 'Bengkel List ';
+        $data['user']     = $this->db->get_where('users', ['email' => $this->session->userdata('email')])->row_array();
+        $data['regional'] = $this->db->get('ms_regional')->result_array();
+        $data['area']     = $this->db->get('ms_area')->result_array();
+        $data['branch']   = $this->db->get('ms_branch_client')->result_array();
+        $data['bengkel']  = $this->Master_m->get_bengkel_all();
+
+        $this->form_validation->set_rules('nama_bengkel', 'Bengkel', 'required|trim');
+        $this->form_validation->set_rules('regional_id', 'Regional', 'required');
+        $this->form_validation->set_rules('area_id', 'Area', 'required');
+        $this->form_validation->set_rules('branch_id', 'Branch', 'required');
+        if ($this->form_validation->run() == false) {
+            $this->load->view('templates/header', $data);
+            $this->load->view('templates/sidebar', $data);
+            $this->load->view('templates/topbar', $data);
+            $this->load->view('master_config/bengkel', $data);
+            $this->load->view('templates/footer');
+        } else {
+            $dtBengkel = array(
+                'user_id'      => $data['user']['id'],
+                'nama_bengkel' => $this->input->post('nama_bengkel'),
+                'regional_id'  => $this->input->post('regional_id'),
+                'area_id'      => $this->input->post('area_id'),
+                'branch_id'    => $this->input->post('branch_id'),
+                'create_date'  => date('Y-m-d H:i:s')
+            );
+            $this->db->insert('ms_bengkel', $dtBengkel);
+            $this->session->set_flashdata('message', '
+            <div class="alert alert-success alert-dismissible">
+                <button type="button" class="close text-sm-left" data-dismiss="alert" aria-hidden="true">&times;</button>
+                <h5><i class="icon fas fa-check"></i> Success!</h5>
+                Data berhasil ditambahkan.
+            </div>');
+            redirect('Master_Config/Bengkel_list');
+        }
+    }
+
+    public function Bengkel_Edit()
+    {
+        $id           = $this->input->post('id', TRUE);
+        $data         = $this->Master_m->get_bengkel_id($id);
+        $data['user'] = $this->db->get_where('users', ['email' => $this->session->userdata('email')])->row_array();
+
+        $data_edit = array(
+            'nama_bengkel' => $this->input->post('nama_bengkel'),
+            'regional_id'  => $this->input->post('regional_id'),
+            'area_id'      => $this->input->post('area_id'),
+            'branch_id'    => $this->input->post('branch_id'),
+            'update_date'  => date('Y-m-d H:i:s'),
+            'user_update'  => $data['user']['id']
+        );
+        $this->Master_m->Edit_bengkel($id, $data_edit);
+
+        $logData = [
+            'username'   => $this->session->userdata('username'),
+            'activities' => 'update data bengkel',
+            'object'     => $data['nama_bengkel'],
+            'url'        => base_url('Master_Config/Bengkel_Edit'),
+            'ipdevice'   => Get_ipdevice(),
+            'at_time'    => date('Y-m-d H:i:s')
+        ];
+        $this->db->insert('user_log_activity', $logData);
+
+        $this->session->set_flashdata('message', '
+        <div class="alert alert-warning alert-dismissible">
+            <button type="button" class="close text-sm-left" data-dismiss="alert" aria-hidden="true">&times;</button>
+            <h5><i class="icon fas fa-info"></i> Success!</h5>
+            Data berhasil diubah.
+        </div>');
+        redirect('Master_Config/Bengkel_list');
+    }
+
+    public function Bengkel_Delete($id)
+    {
+        $this->load->model('Master_m');
+
+        $data         = $this->Master_m->get_bengkel_id($id);
+        $data['user'] = $this->db->get_where('users', ['email' => $this->session->userdata('email')])->row_array();
+        $logData = [
+            'username'   => $this->session->userdata('username'),
+            'activities' => 'Delete Data Bengkel',
+            'url'        => base_url('Master_Config/Bengkel_Delete'),
+            'object'     => $data['nama_bengkel'],
+            'ipdevice'   => Get_ipdevice(),
+            'at_time'    => date('Y-m-d H:i:s')
+        ];
+        $this->db->insert('user_log_activity', $logData);
+        $this->Master_m->Delete_bengkel($id);
+        $this->session->set_flashdata('message', '
+        <div class="alert alert-danger alert-dismissible">
+            <button type="button" class="close text-sm-left" data-dismiss="alert" aria-hidden="true">&times;</button>
+            <h5><i class="icon fas fa-info"></i> Success!</h5>
+            Data berhasil dihapus.
+        </div>');
+        redirect('Master_Config/Bengkel_list');
+    }
 }

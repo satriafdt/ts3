@@ -133,4 +133,74 @@ class Admin_Client extends CI_Controller
         $data['dtInvoices'] = $this->Admin_Client_m->selectInvoiceTS3ToClient(); // Ambil data dari table invoice dengan type_id (TS3 to Client)
         $this->load->view('admin_client/invoice', $data);
     }
+
+    // Masih Copas, belum diedit
+    public function SPK_Upload()
+    {
+        $this->load->library('excel');
+        if (isset($_FILES["fileExcel"]["name"])) {
+            $path = $_FILES["fileExcel"]["tmp_name"];
+            $object = PHPExcel_IOFactory::load($path);
+            foreach ($object->getWorksheetIterator() as $worksheet) {
+                $highestRow = $worksheet->getHighestRow();
+                $highestColumn = $worksheet->getHighestColumn();
+                for ($row = 2; $row <= $highestRow; $row++) {
+                    $EmployeeID = $worksheet->getCellByColumnAndRow(0, $row)->getValue();
+                    $Year = $worksheet->getCellByColumnAndRow(1, $row)->getValue();
+                    $Period = $worksheet->getCellByColumnAndRow(2, $row)->getValue();
+                    $Category = $worksheet->getCellByColumnAndRow(3, $row)->getValue();
+                    $BODComment = $worksheet->getCellByColumnAndRow(4, $row)->getValue();
+                    $UserRequest = $worksheet->getCellByColumnAndRow(5, $row)->getValue();
+                    $temp_data[] = array(
+                        'EmployeeID' => $EmployeeID,
+                        'Year' => $Year,
+                        'Period' => $Period,
+                        'Category' => $Category,
+                        'BODComment' => $BODComment,
+                        'UserRequest' => $UserRequest
+                    );
+                }
+            }
+            $insert = $this->Temp_Upload_m->uploadBOD($temp_data);
+
+            if ($insert) {
+                // Proses Simpan Log Data
+                $logData = [
+                    'employeeid' => $this->session->userdata('employeeid'),
+                    'activities' => 'Upload BOD',
+                    'menu' => $this->uri->segment(1),
+                    'sub_menu' => 'Manage Project',
+                    // 'ipdevice' => $this->_get_ipdevice(),
+                    'at_time' => date('Y-m-d H:i:s')
+                ];
+                $this->db->insert('Log_Activity', $logData);
+
+                $this->Master_Project_m->Set_SPInsertBODCategory();
+
+                $this->session->set_flashdata('sp_message', '
+                        <div class="alert alert-success alert-dismissible">
+                            <button type="button" class="close text-sm-left" data-dismiss="alert" aria-hidden="true">&times;</button>
+                            Data BOD has been uploaded successfully!
+                        </div>
+                    ');
+                redirect('PerformanceManagement/ManageProject');
+            } else {
+                $this->session->set_flashdata('sp_message', '
+                        <div class="alert alert-danger alert-dismissible">
+                            <button type="button" class="close text-sm-left" data-dismiss="alert" aria-hidden="true">&times;</button>
+                            Data not uploaded!
+                        </div>
+                    ');
+                redirect('PerformanceManagement/ManageProject');
+            }
+        } else {
+            $this->session->set_flashdata('sp_message', '
+                    <div class="alert alert-danger alert-dismissible">
+                        <button type="button" class="close text-sm-left" data-dismiss="alert" aria-hidden="true">&times;</button>
+                        File not found!
+                    </div>
+                ');
+            redirect('PerformanceManagement/ManageProject');
+        }
+    }
 }

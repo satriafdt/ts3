@@ -230,17 +230,29 @@ class Service_m extends CI_Model
 
     function selectAllSparepart()
     {
-        $this->db->select('*');
+        $this->db->select('ms_sparepart.*, ms_sparepart_price.harga');
         $this->db->from('ms_sparepart');
+        $this->db->join('ms_sparepart_price', 'ms_sparepart_price.id_sparepart = ms_sparepart.id', 'left');
+        $this->db->order_by('ms_sparepart.sparepart_name', 'ASC');
         $query = $this->db->get();
         return $query->result_array();
     }
 
     function selectSparepartByID($id)
     {
-        $this->db->select('*');
+        $this->db->select('ms_sparepart.*, ms_sparepart_price.harga');
         $this->db->from('ms_sparepart');
-        $this->db->where('id', $id);
+        $this->db->join('ms_sparepart_price', 'ms_sparepart_price.id_sparepart = ms_sparepart.id', 'left');
+        $this->db->where('ms_sparepart.id', $id);
+        $query = $this->db->get();
+        return $query->row_array();
+    }
+
+    function selectSpareparPricetByIDSparepart($id)
+    {
+        $this->db->select('*');
+        $this->db->from('ms_sparepart_price');
+        $this->db->where('id_sparepart', $id);
         $query = $this->db->get();
         return $query->row_array();
     }
@@ -248,5 +260,17 @@ class Service_m extends CI_Model
     function insertSparepart($data)
     {
         return $this->db->insert('ms_sparepart', $data);
+    }
+
+    function editSparepart($id, $dtSparepart)
+    {
+        $this->db->where('id', $id);
+        return $this->db->update('ms_sparepart', $dtSparepart);
+    }
+
+    function editSparepartPrice($id, $dtPrice)
+    {
+        $this->db->where('id_sparepart', $id);
+        return $this->db->update('ms_sparepart_price', $dtPrice);
     }
 }

@@ -140,7 +140,7 @@ class Master_m extends CI_Model
         mc.client_name,
         ma.area_name      
         
-        from ms_branch mb 
+        from ms_branch_client mb 
         left join ms_client mc  on mb.client_id  = mc.id 
         left join ms_area ma  on mb.area_id  = ma.id 
         order by mc.client_name , ma.area_name  asc";
@@ -161,7 +161,7 @@ class Master_m extends CI_Model
         mc.client_name,
         ma.area_name      
         
-        from ms_branch mb 
+        from ms_branch_client mb 
         left join ms_client mc  on mb.client_id  = mc.id 
         left join ms_area ma  on mb.area_id  = ma.id 
         where mb.id='$id'";
@@ -171,12 +171,12 @@ class Master_m extends CI_Model
     function Edit_branch($id, $data_edit)
     {
         $this->db->where('id', $id);
-        return $this->db->update('ms_branch', $data_edit);
+        return $this->db->update('ms_branch_client', $data_edit);
     }
 
     function Delete_branch($id)
     {
-        $query = "delete from ms_branch where id ='$id' ";
+        $query = "delete from ms_branch_client where id ='$id' ";
         return $this->db->query($query);
     }
 
@@ -196,5 +196,41 @@ class Master_m extends CI_Model
     {
         $this->db->where('id', $id);
         return $this->db->update('ms_type_service', $data_edit);
+    }
+
+    function get_bengkel_all()
+    {
+        $this->db->select('ms_bengkel.*, ms_branch_client.branch_name, ms_area.area_name, ms_regional.regional_name');
+        $this->db->from('ms_bengkel');
+        $this->db->join('ms_branch_client', 'ms_branch_client.id = ms_bengkel.branch_id', 'left');
+        $this->db->join('ms_area', 'ms_area.id = ms_bengkel.area_id', 'left');
+        $this->db->join('ms_regional', 'ms_regional.id = ms_bengkel.regional_id', 'left');
+        $this->db->order_by('ms_bengkel.nama_bengkel', 'ASC');
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+
+    function get_bengkel_id($id)
+    {
+        $this->db->select('ms_bengkel.*, ms_branch_client.branch_name, ms_area.area_name, ms_regional.regional_name');
+        $this->db->from('ms_bengkel');
+        $this->db->join('ms_branch_client', 'ms_branch_client.id = ms_bengkel.branch_id', 'left');
+        $this->db->join('ms_area', 'ms_area.id = ms_bengkel.area_id', 'left');
+        $this->db->join('ms_regional', 'ms_regional.id = ms_bengkel.regional_id', 'left');
+        $this->db->where('ms_bengkel.id', $id);
+        $query = $this->db->get();
+        return $query->row_array();
+    }
+
+    function Edit_bengkel($id, $data_edit)
+    {
+        $this->db->where('id', $id);
+        return $this->db->update('ms_bengkel', $data_edit);
+    }
+
+    function Delete_bengkel($id)
+    {
+        $query = "DELETE FROM ms_bengkel WHERE id ='$id' ";
+        return $this->db->query($query);
     }
 }
